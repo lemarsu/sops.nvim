@@ -1,6 +1,7 @@
 std = "min"
 exclude_files = { "config/helix/runtime/**/*.lua" }
 
+local fields = { read_only = false, other_fields = true };
 local fields_ro = { other_fields = true, read_only = true };
 local ro = { read_only = true };
 
@@ -25,8 +26,10 @@ files["**/*.lua"] = {
           read_only = true,
         },
         notify = ro,
-        o = fields_ro,
-        opt = fields_ro,
+        o = fields,
+        opt = fields,
+        opt_local = fields,
+        schedule = ro,
         v = fields_ro,
       },
     },
