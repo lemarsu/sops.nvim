@@ -94,7 +94,7 @@ local function write_encrypted_file(ev)
       print(data)
     end,
     on_exit = function(j, code, _signal)
-      if code ~= 0 then
+      if code ~= 0 and code ~= 200 then
         print("SOPS: Error while encrypting file: " .. code)
         print(j:result())
         return
