@@ -72,7 +72,8 @@ local function write_encrypted_file(ev)
       SOPS_NVIM_SOCKET = v.servername,
       SOPS_NVIM_BUFNR = ev.buf,
       EDITOR = v.progpath .. ' -l ' .. editor,
-      HOME = vim.loop.os_homedir()
+      PATH = vim.loop.os_environ()['PATH'],
+      HOME = vim.loop.os_homedir(),
     },
     on_stderr = function(err, data, _job)
       if err then
