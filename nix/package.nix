@@ -1,18 +1,17 @@
 {
   lib,
   pkgs,
-}: let
-  inherit (builtins) baseNameOf filterSource;
-  inherit (lib.strings) hasSuffix;
-  filterOutNix = path: type:
-    (type == "directory" && baseNameOf path != "nix")
-    || type == "regular" && !(hasSuffix ".nix" path || baseNameOf path == "flake.lock");
-in
-  pkgs.vimUtils.buildVimPlugin {
+}: pkgs.vimUtils.buildVimPlugin {
     name = "sops-nvim";
     version = "0.0.1";
 
-    src = filterSource filterOutNix ./..;
+    src = with lib.fileset; toSource {
+      root = ../.;
+      fileset = unions [
+        ../lua
+        ../editor.lua
+      ];
+    };
 
     meta = with lib; {
       description = "Encrypt/decrypt sops files directly from neovim";
