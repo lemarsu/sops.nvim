@@ -6,11 +6,27 @@ local fn = vim.fn
 local cmd = vim.cmd
 local v = vim.v
 
+local function ensure_not_modified()
+  if vim.bo.modified then
+    cmd.edit()
+    if vim.bo.modified then
+      return false
+    end
+  end
+  return true
+end
+
 local function decrypt_buffer()
+  if not ensure_not_modified() then
+    return
+  end
   cmd('%! sops -d %')
 end
 
 local function encrypt_buffer()
+  if not ensure_not_modified() then
+    return
+  end
   cmd('%! sops -e %')
 end
 
@@ -25,6 +41,17 @@ local function sops_edit()
     file_name = pwd .. file_name
   end
   cmd('e sops://' .. file_name)
+end
+
+local function sops_edit_close()
+  local bufnr = fn.bufnr()
+  local file_name = fn.bufname(bufnr)
+  if file_name:sub(1, 7) ~= "sops://" then
+    vim.api.nvim_err_writeln("Not a sops file!")
+    return
+  end
+  cmd.edit { args = { file_name:sub(8) } }
+  cmd.bwipeout { count = bufnr }
 end
 
 local function read_encrypted_file(ev)
@@ -135,9 +162,10 @@ local function setup_legendary()
       icon = '',
       description = 'Sops plugin commands',
       commands = {
-        { ':SopsDecrypt', description = 'Decrypt sops file' },
-        { ':SopsEncrypt', description = 'Encrypt sops file' },
-        { ':SopsEdit',    description = 'Edit sops file' },
+        { ':SopsDecrypt',   description = 'Decrypt sops file' },
+        { ':SopsEncrypt',   description = 'Encrypt sops file' },
+        { ':SopsEdit',      description = 'Edit sops file' },
+        { ':SopsEditClose', description = 'Close sops file' },
       },
     })
   end
@@ -155,6 +183,10 @@ local function setup_commands()
   api.nvim_create_user_command('SopsEdit', function(_opts)
     sops_edit()
   end, { desc = 'Edit sops file' })
+
+  api.nvim_create_user_command('SopsEditClose', function(_opts)
+    sops_edit_close()
+  end, { desc = 'Close sops file' })
 end
 
 local function setup()
@@ -166,6 +198,7 @@ end
 local M = {
   setup = setup,
   sops_edit = sops_edit,
+  sops_edit_close = sops_edit_close,
 }
 
 return M
