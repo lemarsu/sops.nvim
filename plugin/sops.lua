@@ -39,3 +39,6 @@ for _, event in ipairs(events) do
     callback = load_and_call('sops.events', event[2]),
   })
 end
+
+local legendary = require 'sops.legendary'
+legendary.setup()

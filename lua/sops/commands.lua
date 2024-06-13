@@ -1,10 +1,11 @@
+local config = require 'sops.config'
 local cmd = vim.cmd
 local fn = vim.fn
 local M = {}
 
-local function call_sops(...)
+local function sops_filter(...)
   local last_line = fn.getpos('$')[2]
-  cmd { cmd = '!', args = { 'sops', ... }, range = { 1, last_line } }
+  cmd { cmd = '!', args = { config.binary, ... }, range = { 1, last_line } }
 end
 
 local function ensure_not_modified()
@@ -21,8 +22,8 @@ function M.decrypt_buffer()
   if not ensure_not_modified() then
     return
   end
-  
-  call_sops('-d', '%')
+
+  sops_filter('-d', '%')
 end
 
 function M.encrypt_buffer()
@@ -30,7 +31,7 @@ function M.encrypt_buffer()
     return
   end
 
-  call_sops('-e', '%')
+  sops_filter('-e', '%')
 end
 
 function M.sops_edit()

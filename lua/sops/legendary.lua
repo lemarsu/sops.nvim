@@ -1,7 +1,13 @@
+local config = require 'sops.config'
+
 return {
   setup = function()
+    if not config.legendary_integration or vim.g.sops_legendary_did_load then
+      return
+    end
     local success, legendary = pcall(require, 'legendary')
     if success then
+      vim.g.sops_legendary_did_load = true
       legendary.itemgroups({
         itemgroup = 'SOPS',
         icon = '',

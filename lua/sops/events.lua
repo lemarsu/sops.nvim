@@ -1,7 +1,9 @@
+local config = require 'sops.config'
 local utils = require 'sops.utils'
 local api = vim.api
 local cmd = vim.cmd
 local v = vim.v
+
 local M = {}
 
 local function get_editor_path()
@@ -14,7 +16,7 @@ function M.read_encrypted_file(ev)
   local file_content = {}
   local Job = require 'plenary.job'
   local job = Job:new {
-    command = "sops",
+    command = config.binary,
     args = { "-d", file },
     on_stdout = function(err, data, _job)
       if err then
@@ -46,7 +48,7 @@ function M.write_encrypted_file(ev)
   local editor = get_editor_path()
   local Job = require 'plenary.job'
   local job = Job:new {
-    command = "sops",
+    command = config.binary,
     args = { file },
     env = {
       SOPS_NVIM_SOCKET = v.servername,
