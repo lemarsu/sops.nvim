@@ -8,8 +8,9 @@
     src = with lib.fileset; toSource {
       root = ../.;
       fileset = unions [
-        ../lua
+        ../plugin
         ../editor.lua
+        ../lua
       ];
     };
 
