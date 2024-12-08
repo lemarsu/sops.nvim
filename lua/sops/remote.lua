@@ -4,7 +4,7 @@ return {
     local file = Path:new(temp_file)
     local content = vim.tbl_map(
       function(line)
-        return line .. "\n"
+        return line .. '\n'
       end,
       vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
     )
