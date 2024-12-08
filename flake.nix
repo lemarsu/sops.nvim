@@ -1,5 +1,5 @@
 {
-  description = "Jolly Jumper - TUI file manager";
+  description = "Sops.nvim neovim plugin";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
