@@ -1,11 +1,15 @@
 {
   lib,
   pkgs,
-}: pkgs.vimUtils.buildVimPlugin {
-    name = "sops-nvim";
-    version = "0.0.1";
+  ...
+}:
+pkgs.vimUtils.buildVimPlugin {
+  name = "sops-nvim";
+  version = "0.0.1";
+  nvimRequireCheck = "sops";
 
-    src = with lib.fileset; toSource {
+  src = with lib.fileset;
+    toSource {
       root = ../.;
       fileset = unions [
         ../plugin
@@ -14,9 +18,9 @@
       ];
     };
 
-    meta = with lib; {
-      description = "Encrypt/decrypt sops files directly from neovim";
-      homepage = "https://git.lemarsu.com/neovim/sops.nvim";
-      license = licenses.mit;
-    };
-  }
+  meta = with lib; {
+    description = "Encrypt/decrypt sops files directly from neovim";
+    homepage = "https://git.lemarsu.com/neovim/sops.nvim";
+    license = licenses.mit;
+  };
+}
