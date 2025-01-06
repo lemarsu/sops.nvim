@@ -19,6 +19,31 @@ local function ensure_not_modified()
   return true
 end
 
+local function get_file_name()
+  local bufnr = fn.bufnr()
+  return fn.bufname(bufnr)
+end
+
+local function is_sops_edit()
+  return get_file_name():sub(1, 7) == 'sops://'
+end
+
+local function ensure_not_sops_edit()
+  local ret = not is_sops_edit()
+  if not ret then
+    notify.error('You are already editing a sops file')
+  end
+  return ret
+end
+
+local function ensure_sops_edit()
+  local ret = is_sops_edit()
+  if not ret then
+    notify.error('You are not editing a sops file')
+  end
+  return ret
+end
+
 function M.decrypt_buffer()
   if not ensure_not_modified() then
     return
@@ -36,37 +61,32 @@ function M.encrypt_buffer()
 end
 
 function M.edit()
-  local bufnr = fn.bufnr()
-  local file_name = fn.bufname(bufnr)
-  if file_name:sub(1, 7) == 'sops://' then
-    notify.error('You are already editing a sops file')
+  if not ensure_not_sops_edit() then
     return
   end
+  local file_name = get_file_name()
   if file_name:sub(1, 1) ~= '/' then
     local pwd = fn.getcwd()
-    if pwd:sub(-2, 1) then
-      pwd = pwd .. '/'
+    if pwd == '/' then
+      file_name = pwd .. file_name
+    else
+      file_name = pwd .. '/' .. file_name
     end
-    file_name = pwd .. file_name
   end
   cmd.edit { args = { 'sops://' .. file_name } }
 end
 
 function M.close()
-  local bufnr = fn.bufnr()
-  local file_name = fn.bufname(bufnr)
-  if file_name:sub(1, 7) ~= 'sops://' then
-    notify.error('You are not editing a sops file')
+  if not ensure_sops_edit() then
     return
   end
-  cmd.edit { args = { file_name:sub(8) } }
+  local bufnr = fn.bufnr()
+  cmd.edit { args = { get_file_name():sub(8) } }
   cmd.bwipeout { count = bufnr }
 end
 
 function M.toggle()
-  local bufnr = fn.bufnr()
-  local file_name = fn.bufname(bufnr)
-  if file_name:sub(1, 7) == 'sops://' then
+  if is_sops_edit() then
     M.close()
   else
     M.edit()

@@ -14,8 +14,8 @@ local api_methods = {
 
 local function load_and_call(modname, name)
   return function(...)
-    local sops = require(modname)
-    sops[name](...)
+    local mod = require(modname)
+    mod[name](...)
   end
 end
 
