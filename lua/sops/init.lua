@@ -1,5 +1,3 @@
-local config = require 'sops.config'
-local api = require 'sops.api'
 local cmd = vim.cmd
 local fn = vim.fn
 local M = {}
@@ -53,7 +51,7 @@ function M.setup(opts)
   command.register()
 end
 
--- XXX Maybe a { legendary = true } in setup ? Nice to have.
+-- XXX Maybe a { legendary = true } in setup? Nice to have.
 function M.setup_legendary(opts)
   local legendary = require 'sops.legendary'
   legendary.setup()

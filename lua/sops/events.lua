@@ -29,6 +29,23 @@ local function call_sops(opts)
   return job
 end
 
+local function build_env(mandatory)
+  local env = {}
+  local os_env = vim.loop.os_environ()
+
+  -- Following environment variables
+  for _, name in ipairs(config.sops.follow) do
+    env[name] = os_env[name]
+  end
+
+  -- Setting defined varibales
+  for name, val in pairs(config.sops.env) do
+    env[name] = val
+  end
+
+  return vim.tbl_extend('force', env, mandatory)
+end
+
 function M.read_encrypted_file(ev)
   local file = ev.file:sub(8)
   vim.bo.swapfile = false
@@ -84,15 +101,17 @@ function M.write_encrypted_file(ev)
     return
   end
 
+  local env = {
+    SOPS_NVIM_SOCKET = v.servername,
+    SOPS_NVIM_BUFNR = ev.buf,
+    EDITOR = v.progpath .. ' -l ' .. editor,
+    PATH = vim.loop.os_environ()['PATH'],
+    HOME = vim.loop.os_homedir(),
+  }
+
   local job = call_sops {
     args = { file },
-    env = {
-      SOPS_NVIM_SOCKET = v.servername,
-      SOPS_NVIM_BUFNR = ev.buf,
-      EDITOR = v.progpath .. ' -l ' .. editor,
-      PATH = vim.loop.os_environ()['PATH'],
-      HOME = vim.loop.os_homedir(),
-    },
+    env = build_env(env),
     on_stderr = function(err, data, _job)
       if err then
         -- api.nvim_err_writeln 'SOPS: Unable to write file'

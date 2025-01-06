@@ -1,13 +1,10 @@
 local config = require 'sops.config'
 local notify = require 'sops.notify'
+local sops = require 'sops.sops'
+local api = vim.api
 local cmd = vim.cmd
 local fn = vim.fn
 local M = {}
-
-local function sops_filter(...)
-  local last_line = fn.getpos('$')[2]
-  cmd { cmd = '!', args = { config.binary, ... }, range = { 1, last_line } }
-end
 
 local function ensure_not_modified()
   if vim.bo.modified then
@@ -49,7 +46,9 @@ function M.decrypt_buffer()
     return
   end
 
-  sops_filter('-d', '%')
+  sops.read_decrypted_file(vim.fn.expand('%'), function(contents)
+    api.nvim_buf_set_lines(vim.fn.bufnr(), 0, -1, false, contents)
+  end)
 end
 
 function M.encrypt_buffer()
@@ -57,7 +56,9 @@ function M.encrypt_buffer()
     return
   end
 
-  sops_filter('-e', '%')
+  sops.read_encrypted_file(vim.fn.expand('%'), function(contents)
+    api.nvim_buf_set_lines(vim.fn.bufnr(), 0, -1, false, contents)
+  end)
 end
 
 function M.edit()
