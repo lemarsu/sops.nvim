@@ -3,34 +3,15 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
-    alejandra = {
-      url = "github:kamadorueda/alejandra/3.0.0";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-    alejandra,
-  }:
-    flake-utils.lib.eachDefaultSystem
-    (
-      system: let
-        pkgs = nixpkgs.legacyPackages.${system};
-      in {
-        devShells.default = import ./nix/shell.nix {
-          inherit nixpkgs system;
-        };
+  outputs = {flake-parts, ...} @ inputs:
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      systems = ["x86_64-linux"];
 
-        formatter = alejandra.defaultPackage.${system};
-
-        packages = rec {
-          default = sops-nvim;
-          sops-nvim = pkgs.callPackage ./nix/package.nix {};
-        };
-      }
-    );
+      imports = [
+        ./nix
+      ];
+    };
 }
