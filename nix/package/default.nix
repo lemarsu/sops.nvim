@@ -3,7 +3,7 @@
     ./sops-nvim.nix
   ];
 
-  perSystem = {self, ...}: {
-    packages.default = self.packages.sops-nvim;
+  perSystem = {self', ...}: {
+    packages.default = self'.packages.sops-nvim;
   };
 }
