@@ -1,4 +1,3 @@
-local config = require 'sops.config'
 local notify = require 'sops.notify'
 local sops = require 'sops.sops'
 local api = vim.api

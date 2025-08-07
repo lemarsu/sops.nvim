@@ -8,7 +8,7 @@ local function build_env(...)
   local os_env = vim.loop.os_environ()
 
   -- Following environment variables
-  for _, name in ipairs(config.sops.follow) do
+  for _, name in ipairs(config.follow) do
     env[name] = os_env[name]
   end
 
@@ -17,7 +17,7 @@ local function build_env(...)
     HOME = vim.loop.os_homedir(),
   }
 
-  return vim.tbl_extend('force', env, config.sops.env, ..., forced)
+  return vim.tbl_extend('force', env, config.env, ..., forced)
 end
 
 function M.call_sops(opts)
