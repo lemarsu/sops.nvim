@@ -26,10 +26,7 @@ function M.call_sops(opts)
   local on_success = opts.on_success or function() end
   local on_error = opts.on_error or function() end
   local success_codes = opts.success_codes or { 0 }
-  local sync = opts.sync
-  if sync == nil then
-    sync = true
-  end
+  local sync = opts.sync or false
 
   opts.on_success = nil
   opts.on_error = nil
@@ -96,24 +93,28 @@ function M.call_sops(opts)
   return job
 end
 
-function M.read_decrypted_file(file, fn)
+function M.read_decrypted_file(file, on_success, on_error)
   local job = M.call_sops {
     args = { '-d', file },
-    sync = false,
     on_success = function(ctx)
-      fn(ctx.stdout)
-    end
+      on_success(ctx.stdout)
+    end,
+    on_error = function(ctx)
+      on_error(ctx.stderr)
+    end,
   }
   return job
 end
 
-function M.read_encrypted_file(file, fn)
+function M.read_encrypted_file(file, on_success, on_error)
   local job = M.call_sops {
     args = { '-e', file },
-    sync = false,
     on_success = function(ctx)
-      fn(ctx.stdout)
-    end
+      on_success(ctx.stdout)
+    end,
+    on_error = function(ctx)
+      on_error(ctx.stderr)
+    end,
   }
   return job
 end
