@@ -51,6 +51,11 @@ function M.write_encrypted_file(ev)
     },
     success_codes = { 0, 200 },
     on_success = function(ctx)
+      if ctx.code == 200 then
+        notify.info 'File has not changed'
+      else -- code 0
+        notify.info 'File saved'
+      end
       vim.opt_local.modified = false
       cmd { cmd = 'do', args = { 'BufWritePost', file } }
     end
