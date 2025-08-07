@@ -56,8 +56,8 @@ function M.call_sops(opts)
     on_exit = function(j, code, _signal)
       if not vim.tbl_contains(success_codes, code) then
         vim.schedule(function()
-          notify.error('SOPS: Error while decrypting file\n' .. stderr)
-          on_success {
+          notify.error('SOPS: Error while decrypting file\n' .. vim.iter(stderr):join('\n'))
+          on_error {
             code = code,
             stdout = stdout,
             stderr = stderr,
