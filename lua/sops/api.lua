@@ -66,15 +66,18 @@ function M.edit()
     return
   end
   local file_name = get_file_name()
-  if file_name:sub(1, 1) ~= '/' then
-    local pwd = fn.getcwd()
-    if pwd == '/' then
-      file_name = pwd .. file_name
-    else
-      file_name = pwd .. '/' .. file_name
+
+  sops.read_decrypted_file(vim.fn.expand('%'), function(contents)
+    if file_name:sub(1, 1) ~= '/' then
+      local pwd = fn.getcwd()
+      if pwd == '/' then
+        file_name = pwd .. file_name
+      else
+        file_name = pwd .. '/' .. file_name
+      end
     end
-  end
-  cmd.edit { args = { 'sops://' .. file_name } }
+    cmd.edit { args = { 'sops://' .. file_name } }
+  end)
 end
 
 function M.close()

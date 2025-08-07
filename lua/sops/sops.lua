@@ -100,7 +100,9 @@ function M.read_decrypted_file(file, on_success, on_error)
       on_success(ctx.stdout)
     end,
     on_error = function(ctx)
-      on_error(ctx.stderr)
+      if on_error then
+        on_error(ctx.stderr)
+      end
     end,
   }
   return job
