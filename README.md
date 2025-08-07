@@ -27,5 +27,29 @@ That's it !
 - `:Sops decrypt`: Decrypt the current file with sops.
 - `:Sops version`: Show the current version of `sops.nvim`.
 
+# Configuration
+
+You can configure sops plugin by using `sops.config` module. This can before or after loading the plugin.
+
+```lua
+local config = require 'sops.config'
+
+-- Set sops binary path
+config.binary = '/path/to/sops/binary'
+
+-- If the binary is in the path but it is not named `sops`,
+-- you can just specify its name.
+config.binary = 'my-sops'
+
+-- Set environment variables for calling sops.
+config.env = {
+  SOPS_AGE_KEY = '...',
+}
+
+-- Declare environment variables followed when calling sops.
+-- PATH and HOME are always followed.
+config.follow = { 'SOPS_AGE_KEY' }
+```
+
 [neovim]: https://neovim.io
 [sops]: https://getsops.io
