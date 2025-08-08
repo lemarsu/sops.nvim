@@ -6,7 +6,7 @@ You can also encrypt and decrypt files from neovim.
 
 # Installation
 
-## With lazy
+## With [lazy.nvim][lazy-nvim]
 
 ```lua
 {
@@ -29,7 +29,7 @@ That's it !
 
 # Configuration
 
-You can configure sops plugin by using `sops.config` module. This can before or after loading the plugin.
+You can configure sops plugin by using `sops.config` module. This can be done before or after loading the plugin.
 
 ```lua
 local config = require 'sops.config'
@@ -51,5 +51,37 @@ config.env = {
 config.follow = { 'SOPS_AGE_KEY' }
 ```
 
+## Configuration using Lazy.nvim
+
+If you want to configure the plugin directly when declaring it in
+[lazy.nvim][lazy-nvim], you can configure it using `opts` as shown below:
+
+```lua
+{
+  -- Sops edit tools
+  "lemarsu/sops.nvim",
+  opts = function()
+    local config = require 'sops.config'
+    -- Set sops binary path
+    config.binary = '/path/to/sops/binary'
+
+    -- If the binary is in the path but it is not named `sops`,
+    -- you can just specify its name.
+    config.binary = 'my-sops'
+
+    -- Set environment variables for calling sops.
+    config.env = {
+      SOPS_AGE_KEY = '...',
+    }
+
+    -- Declare environment variables followed when calling sops.
+    -- PATH and HOME are always followed.
+    config.follow = { 'SOPS_AGE_KEY' }
+  end,
+}
+
+```
+
+[lazy-nvim]: https://lazy.folke.io/
 [neovim]: https://neovim.io
 [sops]: https://getsops.io
