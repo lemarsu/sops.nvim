@@ -1,7 +1,18 @@
 local config = require 'sops.config'
 local notify = require 'sops.notify'
+local utils = require 'sops.utils'
 
 local M = {}
+
+local function get_editor_path()
+  local Path = require 'plenary.path'
+  return Path:new(utils.get_script_path()):joinpath('../../editor.lua'):absolute()
+end
+
+local function get_temp_file(file)
+  local extension = file:match('(%.[^./\\]+)$') or ''
+  return vim.fn.tempname() .. extension
+end
 
 local function build_env(...)
   local env = {}
@@ -116,6 +127,39 @@ function M.read_encrypted_file(file, on_success, on_error)
     end,
     on_error = function(ctx)
       on_error(ctx.stderr)
+    end,
+  }
+  return job
+end
+
+function M.read_buffer_as_encrypted_file(file, bufnr, on_success, on_error)
+  local temp_file = get_temp_file(file)
+  local editor = get_editor_path()
+
+  local copy_success, copy_error = vim.loop.fs_copyfile(file, temp_file)
+  if not copy_success then
+    notify.error('SOPS: Unable to copy encrypted file: ' .. vim.inspect(copy_error))
+    return nil
+  end
+
+  local job = M.call_sops {
+    args = { temp_file },
+    env = {
+      EDITOR = vim.v.progpath .. ' -l ' .. editor,
+      SOPS_NVIM_SOCKET = vim.v.servername,
+      SOPS_NVIM_BUFNR = bufnr,
+    },
+    success_codes = { 0, 200 },
+    on_success = function(ctx)
+      local encrypted_content = vim.fn.readfile(temp_file)
+      vim.fn.delete(temp_file)
+      on_success(encrypted_content, ctx.code)
+    end,
+    on_error = function(ctx)
+      vim.fn.delete(temp_file)
+      if on_error then
+        on_error(ctx.stderr)
+      end
     end,
   }
   return job
