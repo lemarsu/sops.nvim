@@ -84,8 +84,23 @@ function M.close()
     return
   end
   local bufnr = fn.bufnr()
-  cmd.edit { args = { get_file_name():sub(8) } }
-  cmd.bwipeout { count = bufnr }
+  local file_name = get_file_name():sub(8)
+
+  if not vim.bo.modified then
+    cmd.edit { args = { file_name } }
+    cmd.bwipeout { count = bufnr }
+    return
+  end
+
+  sops.read_buffer_as_encrypted_file(file_name, bufnr, function(contents, code)
+    vim.bo[bufnr].modified = false
+    cmd.edit { bang = true, args = { file_name } }
+    api.nvim_buf_set_lines(fn.bufnr(), 0, -1, false, contents)
+    if code ~= 200 then
+      vim.bo.modified = true
+    end
+    cmd.bwipeout { bang = true, count = bufnr }
+  end)
 end
 
 function M.toggle()
